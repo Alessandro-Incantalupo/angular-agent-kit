@@ -132,7 +132,7 @@ A failed call logs `"ok":false` with `"error":"input"` (bad input, answered as a
 
 [`examples/after`](examples/after/member-list.component.ts) is what the `migrate-to-signals` playbook produced when Claude Code ran it on that file, and [`examples/migration.diff`](examples/migration.diff) is the diff. [`examples/RUN.md`](examples/RUN.md) has the agent's report. The run left one bug, a `resource.value()` read without `hasValue()`; the review agent found it ([`examples/REVIEW-AFTER.md`](examples/REVIEW-AFTER.md)), the next commit fixes it, and the playbook now checks for it. [`examples/REVIEW.md`](examples/REVIEW.md) is the same agent on the legacy file. Both versions compile with `ngc` and strict templates in CI (`pnpm typecheck`).
 
-See it on a real codebase: (link added after the dashboard refresh)
+See it on a real codebase: the playbook and the review agent moved three pieces of [angular-nx-admin-dashboard-monorepo](https://github.com/Alessandro-Incantalupo/angular-nx-admin-dashboard-monorepo) to signals, one commit each: [a button's classes with `computed()`](https://github.com/Alessandro-Incantalupo/angular-nx-admin-dashboard-monorepo/commit/f624ad3), [the edit form to Signal Forms](https://github.com/Alessandro-Incantalupo/angular-nx-admin-dashboard-monorepo/commit/c36669d), [the menu service following navigation with `toSignal`](https://github.com/Alessandro-Incantalupo/angular-nx-admin-dashboard-monorepo/commit/f5b4423).
 
 ## Sources
 
