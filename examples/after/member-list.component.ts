@@ -45,7 +45,7 @@ export interface Member {
       </ul>
     }
 
-    <p>{{ visibleMembers().length }} of {{ members.value().length }} shown</p>
+    <p>{{ visibleMembers().length }} of {{ total() }} shown</p>
   `,
 })
 export class MemberListComponent {
@@ -67,14 +67,16 @@ export class MemberListComponent {
     initialValue: '',
   });
 
+  /** `value()` throws once the request fails, so every read goes through `hasValue()`. */
+  private readonly loaded = computed(() => (this.members.hasValue() ? this.members.value() : []));
+  protected readonly total = computed(() => this.loaded().length);
+
   protected readonly visibleMembers = computed(() => {
     const query = this.query().trim().toLowerCase();
-    return this.members
-      .value()
-      .filter(
-        (member) =>
-          (this.showInactive() || member.active) && member.name.toLowerCase().includes(query),
-      );
+    return this.loaded().filter(
+      (member) =>
+        (this.showInactive() || member.active) && member.name.toLowerCase().includes(query),
+    );
   });
 
   constructor() {

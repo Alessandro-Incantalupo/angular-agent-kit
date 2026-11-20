@@ -30,18 +30,19 @@ They update templates, host bindings and TypeScript references. Read their diff 
 
 ## 2. Hand edits the schematics leave
 
-| You find                                                                           | Change it to                                                                                         |
-| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| A field shown in the template and assigned later (`loading = false`, `items = []`) | `signal()`; replace assignments with `.set()` / `.update()` and template reads with `name()`         |
-| `ngOnChanges` (or a setter) that recomputes a field from inputs                    | `computed()` that reads the inputs; delete the hook                                                  |
-| `@Input() x` + `@Output() xChange`, or `input()` + `output()` with the same pair   | one `model()`; parents keep `[(x)]` or `(xChange)`, which `model()` emits implicitly                 |
-| `this.http.get(...).subscribe(v => this.x = v)` for display                        | **v22** `httpResource(() => url)`; before v22 `toSignal(...)` in a field                             |
-| `subscribe` kept for a side effect                                                 | `.pipe(takeUntilDestroyed())` in the constructor, or `takeUntilDestroyed(this.destroyRef)` elsewhere |
-| A `Subject` that only debounces a value from the template                          | a `signal` plus `toSignal(toObservable(sig).pipe(debounceTime(n)), {initialValue})`                  |
-| `ngAfterViewInit` touching the DOM (focus, measure)                                | `afterNextRender(() => ...)` in the constructor                                                      |
-| `effect` that copies one signal into another                                       | `computed`, or `linkedSignal` when the user can override it                                          |
-| `track $index` or `track item` on a list that changes                              | `track item.id`                                                                                      |
-| `NgIf`, `NgFor`, `CommonModule` left in `imports`                                  | remove them if nothing else in the template needs them                                               |
+| You find                                                                           | Change it to                                                                                                      |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| A field shown in the template and assigned later (`loading = false`, `items = []`) | `signal()`; replace assignments with `.set()` / `.update()` and template reads with `name()`                      |
+| `ngOnChanges` (or a setter) that recomputes a field from inputs                    | `computed()` that reads the inputs; delete the hook                                                               |
+| `@Input() x` + `@Output() xChange`, or `input()` + `output()` with the same pair   | one `model()`; parents keep `[(x)]` or `(xChange)`, which `model()` emits implicitly                              |
+| `this.http.get(...).subscribe(v => this.x = v)` for display                        | **v22** `httpResource(() => url)`; before v22 `toSignal(...)` in a field                                          |
+| A template or `computed` that reads `resource.value()` / `httpResource.value()`    | read it through `hasValue()` first: `value()` throws in the error state, which hides the error message you render |
+| `subscribe` kept for a side effect                                                 | `.pipe(takeUntilDestroyed())` in the constructor, or `takeUntilDestroyed(this.destroyRef)` elsewhere              |
+| A `Subject` that only debounces a value from the template                          | a `signal` plus `toSignal(toObservable(sig).pipe(debounceTime(n)), {initialValue})`                               |
+| `ngAfterViewInit` touching the DOM (focus, measure)                                | `afterNextRender(() => ...)` in the constructor                                                                   |
+| `effect` that copies one signal into another                                       | `computed`, or `linkedSignal` when the user can override it                                                       |
+| `track $index` or `track item` on a list that changes                              | `track item.id`                                                                                                   |
+| `NgIf`, `NgFor`, `CommonModule` left in `imports`                                  | remove them if nothing else in the template needs them                                                            |
 
 Keep behaviour the same. If a change alters behaviour (timing, an event that now fires once instead of twice), say so in your report.
 
@@ -55,6 +56,7 @@ grep -nE '\*ng(If|For|Switch)|\[ngSwitch\]' <files>
 grep -nE '\.subscribe\(' <files>          # each one needs a teardown
 grep -nE 'track (\$index|[a-z]+)\s*[;)}]' <files>   # check each is a stable id
 grep -nE 'effect\(' <files>               # each one writes to a non-signal API only
+grep -nE '\.value\(\)' <files>               # each resource read is guarded by hasValue()
 ```
 
 Every grep hit is either fixed or explained in the report. Then exercise the component once in the running app or a test: under zoneless, a view that does not update means a value still lives in a plain field.
@@ -69,4 +71,4 @@ Every grep hit is either fixed or explained in the report. Then exercise the com
 
 ## Sources
 
-Schematics: [signal inputs](https://angular.dev/reference/migrations/signal-inputs), [outputs](https://angular.dev/reference/migrations/outputs), [signal queries](https://angular.dev/reference/migrations/signal-queries), [control flow](https://angular.dev/reference/migrations/control-flow). Hand edits: [computed](https://angular.dev/guide/signals#computed-signals), [model inputs](https://angular.dev/guide/components/inputs#implicit-change-events), [httpResource](https://angular.dev/guide/http/http-resource#using-httpresource), [takeUntilDestroyed](https://angular.dev/ecosystem/rxjs-interop/take-until-destroyed), [toObservable timing](https://angular.dev/ecosystem/rxjs-interop#timing-of-toobservable), [afterNextRender](https://angular.dev/guide/components/lifecycle#aftereveryrender-and-afternextrender), [effects](https://angular.dev/guide/signals/effect#use-cases-for-effects), [track](https://angular.dev/guide/templates/control-flow#why-is-track-in-for-blocks-important), [zoneless notifications](https://angular.dev/guide/zoneless#requirements-for-zoneless-compatibility).
+Schematics: [signal inputs](https://angular.dev/reference/migrations/signal-inputs), [outputs](https://angular.dev/reference/migrations/outputs), [signal queries](https://angular.dev/reference/migrations/signal-queries), [control flow](https://angular.dev/reference/migrations/control-flow). Hand edits: [computed](https://angular.dev/guide/signals#computed-signals), [model inputs](https://angular.dev/guide/components/inputs#implicit-change-events), [httpResource](https://angular.dev/guide/http/http-resource#using-httpresource), [resource status](https://angular.dev/guide/signals/resource#resource-status), [takeUntilDestroyed](https://angular.dev/ecosystem/rxjs-interop/take-until-destroyed), [toObservable timing](https://angular.dev/ecosystem/rxjs-interop#timing-of-toobservable), [afterNextRender](https://angular.dev/guide/components/lifecycle#aftereveryrender-and-afternextrender), [effects](https://angular.dev/guide/signals/effect#use-cases-for-effects), [track](https://angular.dev/guide/templates/control-flow#why-is-track-in-for-blocks-important), [zoneless notifications](https://angular.dev/guide/zoneless#requirements-for-zoneless-compatibility).
