@@ -1,0 +1,58 @@
+{
+  "name": "@a.incantalupo/design-tokens-mcp",
+  "version": "0.1.0",
+  "description": "Read-only MCP server for @a.incantalupo/design-tokens: list roles, read a role's value per theme, check the contrast of two colours or roles.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "design-tokens",
+    "contrast",
+    "wcag",
+    "accessibility"
+  ],
+  "homepage": "https://github.com/Alessandro-Incantalupo/angular-agent-kit/tree/main/packages/design-tokens-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alessandro-Incantalupo/angular-agent-kit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alessandro-Incantalupo/angular-agent-kit.git",
+    "directory": "packages/design-tokens-mcp"
+  },
+  "license": "MIT",
+  "author": "Alessandro Incantalupo",
+  "type": "module",
+  "bin": {
+    "design-tokens-mcp": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@a.incantalupo/design-tokens": "^0.1.0",
+    "@modelcontextprotocol/server": "^2.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0"
+  }
+}
