@@ -3,3 +3,7 @@ examples/migration.diff
 examples/out/
 .cache/
 dist/
+# agent transcripts, kept exactly as printed
+examples/RUN.md
+examples/REVIEW.md
+examples/REVIEW-AFTER.md
