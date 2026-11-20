@@ -1,0 +1,15 @@
+packages:
+  - packages/*
+  - examples
+
+# Our own packages are published right before they are used here.
+minimumReleaseAgeExclude:
+  - '@a.incantalupo/*'
+
+# Native build steps pulled in by @angular/cli (examples only). The schematics and
+# ngc used here do not need them.
+allowBuilds:
+  '@parcel/watcher': false
+  esbuild: false
+  lmdb: false
+  msgpackr-extract: false
