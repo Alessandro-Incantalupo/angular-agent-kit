@@ -45,7 +45,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "smoke": "node scripts/smoke.ts"
   },
   "dependencies": {
     "@a.incantalupo/design-tokens": "^0.1.0",
