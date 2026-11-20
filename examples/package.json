@@ -1,0 +1,22 @@
+{
+  "name": "angular-agent-kit-examples",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A small Angular component before and after the migrate-to-signals playbook. Compiled with strict templates to prove both versions build.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "ngc -p tsconfig.json",
+    "ng": "ng"
+  },
+  "devDependencies": {
+    "@angular/cli": "22.3.0",
+    "@angular/common": "22.3.0",
+    "@angular/compiler": "22.3.0",
+    "@angular/compiler-cli": "22.3.0",
+    "@angular/core": "22.3.0",
+    "@angular/platform-browser": "22.3.0",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
+    "typescript": "6.0.3"
+  }
+}
