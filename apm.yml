@@ -1,0 +1,8 @@
+# Package metadata for APM (https://github.com/microsoft/apm). The kit itself is a
+# plugin (.claude-plugin/plugin.json + skills/ + agents/ + .mcp.json): keep this file
+# metadata-only, with no dependencies and no .apm/ folder, so APM installs that layout.
+name: angular-agent-kit
+version: 0.1.0
+description: Angular skill, review agent, migration playbook and design-tokens MCP
+author: Alessandro Incantalupo
+license: MIT

@@ -1,0 +1,14 @@
+{
+  "name": "angular-agent-kit",
+  "displayName": "Angular Agent Kit",
+  "version": "0.1.0",
+  "description": "Modern Angular for coding agents: a signals-first skill written from angular.dev, a read-only review agent, a migrate-to-signals playbook and an MCP server for design tokens.",
+  "author": {
+    "name": "Alessandro Incantalupo",
+    "url": "https://github.com/Alessandro-Incantalupo"
+  },
+  "homepage": "https://github.com/Alessandro-Incantalupo/angular-agent-kit#readme",
+  "repository": "https://github.com/Alessandro-Incantalupo/angular-agent-kit",
+  "license": "MIT",
+  "keywords": ["angular", "signals", "zoneless", "code-review", "design-tokens", "mcp"]
+}

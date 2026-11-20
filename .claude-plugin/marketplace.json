@@ -1,0 +1,15 @@
+{
+  "name": "angular-agent-kit",
+  "description": "Angular team kit for coding agents.",
+  "owner": {
+    "name": "Alessandro Incantalupo",
+    "url": "https://github.com/Alessandro-Incantalupo"
+  },
+  "plugins": [
+    {
+      "name": "angular-agent-kit",
+      "source": "./",
+      "description": "Signals-first Angular skill, review agent, migrate-to-signals playbook and a design-tokens MCP server."
+    }
+  ]
+}
