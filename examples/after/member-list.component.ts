@@ -1,19 +1,16 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
-  AfterViewInit,
-  inject,
+  afterNextRender,
+  computed,
+  input,
+  model,
+  signal,
+  viewChild,
 } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Subject, debounceTime } from 'rxjs';
+import { httpResource } from '@angular/common/http';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 export interface Member {
   id: number;
@@ -25,95 +22,70 @@ export interface Member {
 /** Team members with a search box. The parent binds [teamId] and [(selectedId)]. */
 @Component({
   selector: 'app-member-list',
-  imports: [NgFor, NgIf],
   template: `
     <label>
       Search members
       <input #search type="search" (input)="onSearch(search.value)" />
     </label>
 
-    <p *ngIf="loading">Loading members…</p>
-    <p *ngIf="error" role="alert">{{ error }}</p>
+    @if (members.isLoading()) {
+      <p>Loading members…</p>
+    }
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
 
-    <ul *ngIf="!loading && !error">
-      <li
-        *ngFor="let member of visibleMembers"
-        [class.selected]="member.id === selectedId"
-        (click)="select(member)"
-      >
-        {{ member.name }} <small>{{ member.role }}</small>
-      </li>
-    </ul>
+    @if (!members.isLoading() && !error()) {
+      <ul>
+        @for (member of visibleMembers(); track member.id) {
+          <li [class.selected]="member.id === selectedId()" (click)="select(member)">
+            {{ member.name }} <small>{{ member.role }}</small>
+          </li>
+        }
+      </ul>
+    }
 
-    <p>{{ visibleMembers.length }} of {{ members.length }} shown</p>
+    <p>{{ visibleMembers().length }} of {{ members.value().length }} shown</p>
   `,
 })
-export class MemberListComponent implements OnInit, OnChanges, AfterViewInit {
-  @Input() teamId!: number;
-  @Input() showInactive = false;
-  @Input() selectedId: number | null = null;
-  @Output() selectedIdChange = new EventEmitter<number>();
+export class MemberListComponent {
+  readonly teamId = input.required<number>();
+  readonly showInactive = input(false);
+  readonly selectedId = model<number | null>(null);
 
-  @ViewChild('search') searchInput!: ElementRef<HTMLInputElement>;
+  readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('search');
 
-  members: Member[] = [];
-  visibleMembers: Member[] = [];
-  loading = false;
-  error = '';
+  protected readonly members = httpResource<Member[]>(() => `/api/teams/${this.teamId()}/members`, {
+    defaultValue: [],
+  });
+  protected readonly error = computed(() =>
+    this.members.error() ? 'Could not load the members.' : '',
+  );
 
-  private query = '';
-  private readonly search$ = new Subject<string>();
-  private readonly http = inject(HttpClient);
+  private readonly rawQuery = signal('');
+  private readonly query = toSignal(toObservable(this.rawQuery).pipe(debounceTime(200)), {
+    initialValue: '',
+  });
 
-  ngOnInit(): void {
-    this.search$.pipe(debounceTime(200)).subscribe((query) => {
-      this.query = query;
-      this.applyFilter();
-    });
-  }
+  protected readonly visibleMembers = computed(() => {
+    const query = this.query().trim().toLowerCase();
+    return this.members
+      .value()
+      .filter(
+        (member) =>
+          (this.showInactive() || member.active) && member.name.toLowerCase().includes(query),
+      );
+  });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['teamId']) {
-      this.load();
-    }
-    if (changes['showInactive']) {
-      this.applyFilter();
-    }
-  }
-
-  ngAfterViewInit(): void {
-    this.searchInput.nativeElement.focus();
+  constructor() {
+    afterNextRender(() => this.searchInput().nativeElement.focus());
   }
 
   onSearch(value: string): void {
-    this.search$.next(value);
+    this.rawQuery.set(value);
   }
 
   select(member: Member): void {
-    this.selectedId = member.id;
-    this.selectedIdChange.emit(member.id);
-  }
-
-  private load(): void {
-    this.loading = true;
-    this.error = '';
-    this.http.get<Member[]>(`/api/teams/${this.teamId}/members`).subscribe({
-      next: (members) => {
-        this.members = members;
-        this.loading = false;
-        this.applyFilter();
-      },
-      error: () => {
-        this.error = 'Could not load the members.';
-        this.loading = false;
-      },
-    });
-  }
-
-  private applyFilter(): void {
-    const query = this.query.trim().toLowerCase();
-    this.visibleMembers = this.members.filter(
-      (member) => (this.showInactive || member.active) && member.name.toLowerCase().includes(query),
-    );
+    this.selectedId.set(member.id);
   }
 }
