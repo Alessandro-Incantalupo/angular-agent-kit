@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5 # Node and pnpm from mise.toml
+      - run: pnpm install --frozen-lockfile
+      - name: Lint (Prettier + ESLint)
+        run: pnpm lint
+      - name: Typecheck (scripts, MCP server, Angular example with strict templates)
+        run: pnpm typecheck
+      - name: Tests (MCP tools, stdio round-trip, kit validator)
+        run: pnpm test
+      - name: Skill and agent files, and every angular.dev link
+        run: pnpm validate:links
+      - name: Build and pack the MCP server
+        run: |
+          pnpm build
+          pnpm --filter @a.incantalupo/design-tokens-mcp pack --dry-run
